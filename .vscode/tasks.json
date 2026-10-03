@@ -1,0 +1,59 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "publish: macOS CLI",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "echo 'This task only runs on macOS.' 1>&2; exit 1"
+            ],
+            "osx": {
+                "command": "bash",
+                "args": [
+                    "-c",
+                    "ARCH=\"$(uname -m)\"; case \"$ARCH\" in arm64) RID=osx-arm64 ;; x86_64) RID=osx-x64 ;; *) echo \"Unsupported architecture: $ARCH\" 1>&2; exit 1 ;; esac; dotnet publish '${workspaceFolder}/GTToolsSharp/GTToolsSharp.csproj' -c Release -r \"$RID\" --self-contained false -p:PublishSingleFile=true -p:RollForward=LatestMajor -o \"${workspaceFolder}/publish/$RID\""
+                ]
+            },
+            "presentation": {
+                "reveal": "always",
+                "panel": "shared"
+            },
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "link: GTToolsSharp → ~/.local/bin",
+            "type": "shell",
+            "command": "bash",
+            "args": [
+                "-c",
+                "echo 'This task only runs on macOS.' 1>&2; exit 1"
+            ],
+            "osx": {
+                "command": "bash",
+                "args": [
+                    "-c",
+                    "ARCH=\"$(uname -m)\"; case \"$ARCH\" in arm64) RID=osx-arm64 ;; x86_64) RID=osx-x64 ;; *) echo \"Unsupported architecture: $ARCH\" 1>&2; exit 1 ;; esac; ln -sf \"${workspaceFolder}/publish/$RID/GTToolsSharp\" \"$HOME/.local/bin/gttoolssharp\""
+                ]
+            },
+            "dependsOn": "publish: macOS CLI",
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "build+install: GTToolsSharp CLI (macOS)",
+            "dependsOn": [
+                "publish: macOS CLI",
+                "link: GTToolsSharp → ~/.local/bin"
+            ],
+            "dependsOrder": "sequence",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
